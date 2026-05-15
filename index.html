@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>PromoEffect · OfficeMax Analytics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --black: #111111;
+  --yellow:#FFD100;
+  --yellow-dk:#E6BC00;
+  --white: #FFFFFF;
+  --gray:  #F4F4F4;
+  --gray2: #E8E8E8;
+  --gray3: #AAAAAA;
+  --ink:   #222222;
+  --green: #00A651;
+  --red:   #E02020;
+  --blue:  #0055A5;
+  --radius:6px;
+  --shadow:0 2px 12px rgba(0,0,0,.12);
+}
+
+html{scroll-behavior:smooth}
+body{font-family:'Barlow',sans-serif;background:var(--gray);color:var(--ink);min-height:100vh}
+
+/* ── HEADER ──────────────────────────────────────── */
+header{
+  background:var(--black);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 2rem;height:68px;
+  border-bottom:4px solid var(--yellow);
+  position:sticky;top:0;z-index:200;
+}
+.hdr-left{display:flex;align-items:center;gap:1.2rem}
+.logo-img{height:36px;filter:brightness(0) invert(1)}
+.hdr-title{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:1.15rem;font-weight:800;
+  color:var(--yellow);letter-spacing:.5px;
+  text-transform:uppercase;
+  border-left:2px solid #444;
+  padding-left:1.2rem;
+}
+.hdr-badge{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.7rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  background:var(--yellow);color:var(--black);
+  padding:.25rem .7rem;border-radius:3px;
+}
+
+/* ── HERO STRIP ─────────────────────────────────── */
+.hero-strip{
+  background:var(--yellow);
+  padding:1.1rem 2rem;
+  display:flex;align-items:center;gap:1rem;
+}
+.hero-strip h1{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:2rem;font-weight:900;text-transform:uppercase;
+  color:var(--black);line-height:1;letter-spacing:-.5px;
+}
+.hero-strip p{font-size:.88rem;color:#333;font-weight:500;max-width:560px}
+.hero-icon{font-size:2.4rem}
+
+/* ── WRAPPER ─────────────────────────────────────── */
+.wrapper{max-width:1100px;margin:0 auto;padding:2rem 1.5rem 5rem;display:flex;flex-direction:column;gap:1.5rem}
+
+/* ── CARD ────────────────────────────────────────── */
+.card{background:var(--white);border:1px solid var(--gray2);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.card-header{
+  background:var(--black);color:var(--white);
+  padding:.75rem 1.4rem;
+  display:flex;align-items:center;gap:.6rem;
+}
+.card-header h2{font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px}
+.card-header .step{
+  background:var(--yellow);color:var(--black);
+  font-family:'Barlow Condensed',sans-serif;font-size:.75rem;font-weight:900;
+  padding:.15rem .5rem;border-radius:3px;
+}
+.card-body{padding:1.5rem}
+
+/* ── INSTRUCCIONES ───────────────────────────────── */
+details{border:none}
+summary{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.95rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;
+  cursor:pointer;list-style:none;display:flex;align-items:center;gap:.5rem;
+  color:var(--black);
+}
+summary::after{content:'▾';margin-left:auto;font-size:1rem;transition:transform .2s}
+details[open] summary::after{transform:rotate(-180deg)}
+.instr-body{padding:1rem 0 0;display:flex;flex-direction:column;gap:1.2rem}
+
+.spec-block h4{font-family:'Barlow Condensed',sans-serif;font-size:.95rem;font-weight:800;text-transform:uppercase;color:var(--black);margin-bottom:.5rem}
+.spec-block p{font-size:.82rem;color:#555;line-height:1.6;margin-bottom:.6rem}
+
+.col-table{width:100%;border-collapse:collapse;font-size:.8rem}
+.col-table th{text-align:left;padding:.45rem .7rem;background:var(--black);color:var(--white);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:.5px}
+.col-table td{padding:.45rem .7rem;border-bottom:1px solid var(--gray2);color:var(--ink)}
+.col-table tr:last-child td{border-bottom:none}
+.col-table tr:hover td{background:var(--gray)}
+code{background:var(--gray);padding:.1rem .35rem;border-radius:3px;font-size:.78rem;font-family:monospace}
+.tag{display:inline-block;padding:.15rem .45rem;border-radius:3px;font-size:.68rem;font-weight:700;font-family:'Barlow Condensed',sans-serif;letter-spacing:.3px;text-transform:uppercase}
+.tag-req{background:#FFE8E8;color:var(--red)}
+.tag-opt{background:#E8F5E9;color:var(--green)}
+
+/* ── UPLOAD ZONES ────────────────────────────────── */
+.upload-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:600px){.upload-grid{grid-template-columns:1fr}}
+
+.upload-zone{
+  border:2.5px dashed var(--gray2);border-radius:var(--radius);
+  padding:1.6rem 1rem;text-align:center;cursor:pointer;
+  position:relative;transition:border-color .2s,background .2s;
+}
+.upload-zone:hover{border-color:var(--yellow);background:#FFFDE6}
+.upload-zone.has-file{border-color:var(--green);border-style:solid;background:#F1FAF4}
+.upload-zone input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.uz-badge{display:inline-block;margin-bottom:.5rem}
+.uz-icon{font-size:2rem;display:block;margin-bottom:.4rem}
+.uz-label{font-family:'Barlow Condensed',sans-serif;font-size:1.05rem;font-weight:800;text-transform:uppercase;display:block;margin-bottom:.2rem;color:var(--black)}
+.uz-hint{font-size:.75rem;color:var(--gray3)}
+.file-name{font-size:.75rem;color:var(--green);font-weight:600;margin-top:.4rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ── DEPT + BUTTON ───────────────────────────────── */
+.bottom-row{display:flex;gap:1rem;align-items:flex-end;margin-top:1.2rem}
+.field-group{flex:1}
+.field-group label{font-family:'Barlow Condensed',sans-serif;font-size:.9rem;font-weight:800;text-transform:uppercase;letter-spacing:.3px;display:block;margin-bottom:.35rem}
+.field-group input,.field-group select{
+  width:100%;border:2px solid var(--gray2);border-radius:var(--radius);
+  padding:.6rem .9rem;font-size:.9rem;font-family:'Barlow',sans-serif;
+  color:var(--ink);background:var(--white);transition:border-color .2s;
+}
+.field-group input:focus,.field-group select:focus{outline:none;border-color:var(--yellow)}
+.field-hint{font-size:.72rem;color:var(--gray3);margin-top:.3rem}
+
+.btn{display:inline-flex;align-items:center;gap:.5rem;padding:.75rem 1.8rem;border-radius:var(--radius);font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:900;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;border:none;transition:all .15s}
+.btn-yellow{background:var(--yellow);color:var(--black);box-shadow:0 3px 0 var(--yellow-dk)}
+.btn-yellow:hover{background:var(--yellow-dk);transform:translateY(-1px)}
+.btn-yellow:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn-black{background:var(--black);color:var(--white);box-shadow:0 3px 0 #444}
+.btn-black:hover{background:#333;transform:translateY(-1px)}
+.btn-sm{padding:.4rem 1rem;font-size:.82rem}
+.btn-outline{background:transparent;border:2px solid var(--black);color:var(--black)}
+.btn-outline:hover{background:var(--black);color:var(--white)}
+
+/* ── SKU PICKER ──────────────────────────────────── */
+#sku-section{display:none}
+.sku-toolbar{display:flex;gap:.6rem;margin-bottom:.8rem;flex-wrap:wrap;align-items:center}
+.sku-toolbar span{font-size:.8rem;color:var(--gray3);margin-left:auto}
+.sku-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:.5rem;max-height:320px;overflow-y:auto;padding-right:.3rem}
+.sku-item{
+  display:flex;align-items:center;gap:.7rem;
+  padding:.55rem .8rem;border:2px solid var(--gray2);border-radius:var(--radius);
+  cursor:pointer;transition:all .15s;background:var(--white);user-select:none;
+}
+.sku-item:hover{border-color:var(--yellow);background:#FFFDE6}
+.sku-item.selected{border-color:var(--black);background:var(--black);color:var(--white)}
+.sku-item.selected .sku-meta{color:#aaa}
+.sku-check{width:18px;height:18px;border:2px solid var(--gray2);border-radius:3px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.65rem;transition:all .15s}
+.sku-item.selected .sku-check{background:var(--yellow);border-color:var(--yellow);color:var(--black);font-weight:900}
+.sku-nbr{font-family:'Barlow Condensed',sans-serif;font-size:.78rem;font-weight:700;text-transform:uppercase}
+.sku-name-txt{font-size:.82rem;font-weight:500;line-height:1.2}
+.sku-meta{font-size:.7rem;color:var(--gray3)}
+
+/* ── LOADER ──────────────────────────────────────── */
+#loader{display:none;flex-direction:column;align-items:center;gap:1rem;padding:3rem}
+.spinner{width:48px;height:48px;border:4px solid var(--gray2);border-top-color:var(--yellow);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-text{font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--gray3)}
+
+/* ── ERROR ───────────────────────────────────────── */
+.error-banner{display:none;background:#FFF5F5;border:2px solid #FECACA;border-left:5px solid var(--red);border-radius:var(--radius);padding:1.2rem 1.4rem}
+.error-banner h4{color:var(--red);font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:900;text-transform:uppercase;margin-bottom:.4rem}
+.error-banner p{font-size:.82rem;color:#B91C1C;line-height:1.6;white-space:pre-wrap}
+
+/* ── RESULTS ─────────────────────────────────────── */
+#results{display:none;flex-direction:column;gap:1.5rem}
+
+.result-header{
+  background:var(--yellow);
+  padding:1rem 1.5rem;
+  display:flex;align-items:center;gap:1rem;
+  border-radius:var(--radius);
+}
+.result-header h2{font-family:'Barlow Condensed',sans-serif;font-size:1.5rem;font-weight:900;text-transform:uppercase;color:var(--black)}
+.result-header p{font-size:.82rem;color:#444}
+
+/* Section label */
+.section-label{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.8rem;font-weight:900;text-transform:uppercase;letter-spacing:1px;
+  color:var(--gray3);margin-bottom:.8rem;border-left:3px solid var(--yellow);padding-left:.5rem;
+}
+
+/* ── COMPARATIVO TABLE ───────────────────────────── */
+.comp-table{width:100%;border-collapse:collapse;font-size:.82rem}
+.comp-table th{padding:.55rem .9rem;background:var(--black);color:var(--white);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:.3px;text-align:left}
+.comp-table td{padding:.55rem .9rem;border-bottom:1px solid var(--gray2)}
+.comp-table tr:last-child td{border-bottom:none}
+.comp-table tr:hover td{background:var(--gray)}
+.delta-pos{color:var(--green);font-weight:700}
+.delta-neg{color:var(--red);font-weight:700}
+.delta-neu{color:var(--gray3)}
+
+/* ── CHARTS ──────────────────────────────────────── */
+.chart-wrap{width:100%;overflow-x:auto}
+.chart-wrap img{width:100%;height:auto;border-radius:4px;border:1px solid var(--gray2)}
+.dl-row{display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:.8rem}
+
+/* ── CONCLUSIONS ─────────────────────────────────── */
+.conc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:.8rem}
+.conc-card{border:2px solid var(--gray2);border-radius:var(--radius);padding:1rem;background:var(--white)}
+.conc-card:hover{border-color:var(--yellow)}
+.conc-sku{font-family:'Barlow Condensed',sans-serif;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--gray3);margin-bottom:.2rem}
+.conc-name{font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:800;color:var(--black);margin-bottom:.5rem;line-height:1.2}
+.conc-verdict{font-size:.78rem;font-weight:600;background:var(--yellow);color:var(--black);display:inline-block;padding:.2rem .5rem;border-radius:3px;margin-bottom:.6rem}
+.conc-metrics{display:flex;gap:.6rem;flex-wrap:wrap}
+.cm-item{font-size:.73rem;color:var(--gray3)}
+.cm-item strong{color:var(--ink)}
+
+/* ── AI BOX ──────────────────────────────────────── */
+.ai-box{
+  background:var(--black);
+  border-radius:var(--radius);
+  padding:1.8rem;
+  position:relative;overflow:hidden;
+}
+.ai-box::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--yellow)}
+.ai-label{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.72rem;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;
+  color:var(--yellow);margin-bottom:.8rem;display:flex;align-items:center;gap:.4rem;
+}
+.ai-label span{font-size:1rem}
+.ai-text{font-size:.9rem;line-height:1.75;color:rgba(255,255,255,.88)}
+.ai-fallback{font-size:.82rem;color:rgba(255,255,255,.5);font-style:italic}
+
+/* ── WARNINGS ────────────────────────────────────── */
+.warn-list{display:flex;flex-direction:column;gap:.5rem}
+.warn-item{background:#FFFBEB;border:1px solid #FDE68A;border-left:4px solid var(--yellow);border-radius:var(--radius);padding:.7rem 1rem;font-size:.78rem;color:#92400E;line-height:1.5;display:flex;gap:.5rem;align-items:flex-start}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="hdr-left">
+    <img src="logo-officemax.png" alt="OfficeMax" class="logo-img">
+    <div class="hdr-title">PromoEffect Analytics</div>
+  </div>
+  <div class="hdr-badge">Análisis de Promociones</div>
+</header>
+
+<!-- HERO -->
+<div class="hero-strip">
+  <span class="hero-icon">📊</span>
+  <div>
+    <h1>Efecto de Promociones por SKU</h1>
+    <p>Sube tus datos de ventas, elige los SKUs que quieres analizar y obtén gráficas + conclusiones generadas con IA en segundos.</p>
+  </div>
+</div>
+
+<div class="wrapper">
+
+  <!-- INSTRUCCIONES -->
+  <div class="card">
+    <div class="card-header"><h2>📋 Instrucciones y especificaciones</h2></div>
+    <div class="card-body">
+      <details>
+        <summary>Ver especificaciones de archivos requeridos</summary>
+        <div class="instr-body">
+
+          <div class="spec-block">
+            <h4>Archivo de Ventas (CSV) <span class="tag tag-req">Requerido</span></h4>
+            <p>Historial de transacciones. El sistema te dejará elegir el departamento y los SKUs específicos a analizar.</p>
+            <table class="col-table">
+              <thead><tr><th>Columna</th><th>Tipo</th><th>Descripción</th><th></th></tr></thead>
+              <tbody>
+                <tr><td><code>tran_date</code></td><td>YYYY-MM-DD</td><td>Fecha de transacción</td><td><span class="tag tag-req">Requerida</span></td></tr>
+                <tr><td><code>dept_nm</code></td><td>Texto</td><td>Nombre del departamento (ej. CARPETAS)</td><td><span class="tag tag-req">Requerida</span></td></tr>
+                <tr><td><code>prod_nbr</code></td><td>Número</td><td>Número de SKU del producto</td><td><span class="tag tag-req">Requerida</span></td></tr>
+                <tr><td><code>qty</code></td><td>Número</td><td>Unidades vendidas</td><td><span class="tag tag-req">Requerida</span></td></tr>
+                <tr><td><code>net_sale</code></td><td>Decimal</td><td>Ingreso neto sin IVA</td><td><span class="tag tag-req">Requerida</span></td></tr>
+                <tr><td><code>prod_desc</code></td><td>Texto</td><td>Nombre del producto (para etiquetas)</td><td><span class="tag tag-opt">Opcional</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="spec-block">
+            <h4>Archivo de Promociones (XLSX) <span class="tag tag-opt">Opcional</span></h4>
+            <p>Registro oficial de promociones. Si no se sube, el sistema detecta automáticamente semanas de promo con dos proxies: caídas de precio ≥20% y spikes de unidades en percentil 90.</p>
+            <table class="col-table">
+              <thead><tr><th>Columna</th><th>Tipo</th><th>Descripción</th><th></th></tr></thead>
+              <tbody>
+                <tr><td><code>SKU</code></td><td>Número</td><td>SKU al que aplica la promo</td><td><span class="tag tag-req">Requerida</span></td></tr>
+                <tr><td><code>Fecha_Inicio</code></td><td>DD/MM/YYYY</td><td>Inicio de la promoción</td><td><span class="tag tag-req">Requerida</span></td></tr>
+                <tr><td><code>Fecha_Fin</code></td><td>DD/MM/YYYY</td><td>Fin de la promoción</td><td><span class="tag tag-req">Requerida</span></td></tr>
+                <tr><td><code>Pct_Descuento</code></td><td>Número</td><td>Porcentaje de descuento (ej. 20)</td><td><span class="tag tag-req">Requerida</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="spec-block">
+            <h4>⚠️ Validación de margen</h4>
+            <p>El sistema estima el costo como <strong>60% del precio modal</strong> (margen retail ~40%). Si más del 30% de las transacciones de un SKU tienen precio menor al costo estimado, el análisis se bloquea con un mensaje de error explicando el motivo — puede indicar errores de captura, devoluciones mal clasificadas o precios por debajo de costo.</p>
+          </div>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <!-- UPLOAD -->
+  <div class="card">
+    <div class="card-header"><span class="step">01</span><h2>Cargar archivos</h2></div>
+    <div class="card-body">
+      <div class="upload-grid">
+        <div class="upload-zone" id="zone-ventas">
+          <input type="file" id="inp-ventas" accept=".csv" onchange="onVentasSelect(this)">
+          <span class="uz-badge"><span class="tag tag-req">Requerido</span></span>
+          <span class="uz-icon">📊</span>
+          <span class="uz-label">Ventas (CSV)</span>
+          <span class="uz-hint">Ventas_2024_2026.csv o similar</span>
+          <div class="file-name" id="name-ventas"></div>
+        </div>
+        <div class="upload-zone" id="zone-promos">
+          <input type="file" id="inp-promos" accept=".xlsx,.xls" onchange="onFileSelect(this,'zone-promos','name-promos')">
+          <span class="uz-badge"><span class="tag tag-opt">Opcional</span></span>
+          <span class="uz-icon">🏷️</span>
+          <span class="uz-label">Promociones (XLSX)</span>
+          <span class="uz-hint">Sin este archivo se usan proxies automáticos</span>
+          <div class="file-name" id="name-promos"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DEPT + SKU PICKER -->
+  <div class="card">
+    <div class="card-header"><span class="step">02</span><h2>Seleccionar departamento y SKUs</h2></div>
+    <div class="card-body">
+      <div class="bottom-row">
+        <div class="field-group">
+          <label for="inp-dept">Departamento</label>
+          <select id="inp-dept" onchange="loadSkus()">
+            <option value="">— Sube el CSV primero —</option>
+          </select>
+          <div class="field-hint">Se carga automáticamente desde el archivo de ventas.</div>
+        </div>
+        <button class="btn btn-black btn-sm" onclick="loadSkus()" id="btn-refresh" style="margin-bottom:1.8rem">↺ Actualizar</button>
+      </div>
+
+      <div id="sku-section">
+        <div class="section-label">SKUs disponibles — selecciona uno o más para analizar</div>
+        <div class="sku-toolbar">
+          <button class="btn btn-sm btn-outline" onclick="selectAll()">Seleccionar todos</button>
+          <button class="btn btn-sm btn-outline" onclick="clearAll()">Limpiar</button>
+          <span id="sel-count">0 seleccionados</span>
+        </div>
+        <div class="sku-grid" id="sku-grid"></div>
+      </div>
+
+      <div style="margin-top:1.2rem;display:flex;gap:1rem;align-items:center">
+        <button class="btn btn-yellow" id="btn-run" onclick="runAnalysis()">▶ Analizar</button>
+        <span style="font-size:.78rem;color:var(--gray3)">Si no seleccionas SKUs se usarán los Top 3 automáticamente.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOADER -->
+  <div id="loader">
+    <div class="spinner"></div>
+    <p class="loader-text">Procesando datos y generando gráficas…</p>
+  </div>
+
+  <!-- ERROR -->
+  <div class="error-banner" id="error-banner">
+    <h4 id="error-title">Error</h4>
+    <p id="error-body"></p>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results">
+
+    <div class="result-header">
+      <div>
+        <h2 id="res-heading">Análisis completado</h2>
+        <p id="res-sub"></p>
+      </div>
+    </div>
+
+    <!-- Warnings -->
+    <div class="card" id="card-warnings" style="display:none">
+      <div class="card-header"><h2>⚠️ Advertencias de margen</h2></div>
+      <div class="card-body"><div class="warn-list" id="warn-list"></div></div>
+    </div>
+
+    <!-- Comparativo -->
+    <div class="card">
+      <div class="card-header"><h2>A. Comparativo Promo vs. No-Promo</h2></div>
+      <div class="card-body">
+        <div class="section-label">Variación porcentual en media semanal — semanas con promo vs. sin promo</div>
+        <div style="overflow-x:auto">
+          <table class="comp-table">
+            <thead><tr><th>SKU</th><th>Nombre</th><th>Sem. Promo</th><th>Sem. Sin Promo</th><th>Δ Unidades</th><th>Δ Ingresos</th><th>Δ Ganancia</th></tr></thead>
+            <tbody id="comp-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="card">
+      <div class="card-header"><h2>B. Línea de tiempo semanal</h2></div>
+      <div class="card-body">
+        <div class="section-label">Unidades, Ingresos y Ganancia por semana · áreas sombreadas = semanas de promoción</div>
+        <div class="dl-row" id="dl-tl"></div>
+        <div class="chart-wrap"><img id="img-timeline" src="" alt="Timeline"></div>
+      </div>
+    </div>
+
+    <!-- Event Study -->
+    <div class="card">
+      <div class="card-header"><h2>C. Event Study — Pre / Durante / Post</h2></div>
+      <div class="card-body">
+        <div class="section-label">Índice normalizado Pre = 100 · ventana ±4 semanas alrededor de cada bloque de promo</div>
+        <div class="dl-row" id="dl-ev"></div>
+        <div class="chart-wrap"><img id="img-event" src="" alt="Event Study"></div>
+      </div>
+    </div>
+
+    <!-- Conclusions per SKU -->
+    <div class="card">
+      <div class="card-header"><h2>D. Conclusiones por SKU</h2></div>
+      <div class="card-body">
+        <div class="section-label">Resumen Pre → Durante → Post para cada SKU analizado</div>
+        <div class="conc-grid" id="conc-grid"></div>
+      </div>
+    </div>
+
+    <!-- AI conclusion -->
+    <div class="ai-box">
+      <div class="ai-label"><span>✦</span> Conclusión ejecutiva generada con IA</div>
+      <div id="ai-text" class="ai-text"></div>
+    </div>
+
+  </div><!-- /results -->
+</div><!-- /wrapper -->
+
+<script>
+// ── State ──────────────────────────────────────────────
+let ventasFile = null;
+let ventasCache = null;   // {dept: ArrayBuffer} para re-uso
+let allSkus = [];
+let selectedSkus = new Set();
+
+// ── File handlers ─────────────────────────────────────
+function onFileSelect(inp, zoneId, nameId) {
+  const z = document.getElementById(zoneId);
+  const n = document.getElementById(nameId);
+  if (inp.files.length) { z.classList.add('has-file'); n.textContent = inp.files[0].name; }
+  else { z.classList.remove('has-file'); n.textContent = ''; }
+}
+
+async function onVentasSelect(inp) {
+  onFileSelect(inp, 'zone-ventas', 'name-ventas');
+  ventasFile = inp.files[0] || null;
+  if (ventasFile) await loadDepts();
+}
+
+async function loadDepts() {
+  if (!ventasFile) return;
+  const fd = new FormData(); fd.append('ventas', ventasFile);
+  try {
+    const r = await fetch('/departments', {method:'POST', body:fd});
+    const d = await r.json();
+    if (d.error) { showError('Error leyendo departamentos', d.error); return; }
+    const sel = document.getElementById('inp-dept');
+    sel.innerHTML = '<option value="">— Elige un departamento —</option>';
+    d.departments.forEach(dep => {
+      const o = document.createElement('option'); o.value = dep; o.textContent = dep; sel.appendChild(o);
+    });
+    if (d.departments.length === 1) { sel.value = d.departments[0]; await loadSkus(); }
+  } catch(e) { showError('Error de conexión', e.message); }
+}
+
+async function loadSkus() {
+  const dept = document.getElementById('inp-dept').value;
+  if (!dept || !ventasFile) { document.getElementById('sku-section').style.display='none'; return; }
+  const fd = new FormData(); fd.append('ventas', ventasFile); fd.append('dept', dept);
+  try {
+    const r = await fetch('/skus', {method:'POST', body:fd});
+    const d = await r.json();
+    if (d.error) { showError('Error', d.error); return; }
+    allSkus = d.skus; selectedSkus.clear(); renderSkuGrid();
+    document.getElementById('sku-section').style.display = 'block';
+  } catch(e) { showError('Error de conexión', e.message); }
+}
+
+function renderSkuGrid() {
+  const grid = document.getElementById('sku-grid');
+  grid.innerHTML = '';
+  allSkus.forEach(sku => {
+    const div = document.createElement('div');
+    div.className = 'sku-item' + (selectedSkus.has(sku.prod_nbr) ? ' selected' : '');
+    div.dataset.nbr = sku.prod_nbr;
+    div.innerHTML = `
+      <div class="sku-check">${selectedSkus.has(sku.prod_nbr)?'✓':''}</div>
+      <div>
+        <div class="sku-nbr">${sku.prod_nbr}</div>
+        <div class="sku-name-txt">${sku.name}</div>
+        <div class="sku-meta">${sku.units.toLocaleString()} uds · $${sku.revenue.toLocaleString()}</div>
+      </div>`;
+    div.onclick = () => toggleSku(sku.prod_nbr, div);
+    grid.appendChild(div);
+  });
+  updateCount();
+}
+
+function toggleSku(nbr, el) {
+  if (selectedSkus.has(nbr)) { selectedSkus.delete(nbr); el.classList.remove('selected'); el.querySelector('.sku-check').textContent=''; }
+  else { selectedSkus.add(nbr); el.classList.add('selected'); el.querySelector('.sku-check').textContent='✓'; }
+  updateCount();
+}
+
+function selectAll() { allSkus.forEach(s => selectedSkus.add(s.prod_nbr)); renderSkuGrid(); }
+function clearAll()  { selectedSkus.clear(); renderSkuGrid(); }
+function updateCount() { document.getElementById('sel-count').textContent = selectedSkus.size + ' seleccionados'; }
+
+// ── Error ──────────────────────────────────────────────
+function showError(title, body) {
+  const b = document.getElementById('error-banner');
+  document.getElementById('error-title').textContent = title;
+  document.getElementById('error-body').textContent  = body;
+  b.style.display = 'block';
+  b.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function hideError() { document.getElementById('error-banner').style.display='none'; }
+
+// ── Helpers ────────────────────────────────────────────
+function deltaClass(v) { return v>0?'delta-pos':v<0?'delta-neg':'delta-neu'; }
+function fmtD(v)       { return (v>0?'+':'')+v+'%'; }
+
+function dlBtn(b64, fname, label) {
+  const btn = document.createElement('button');
+  btn.className='btn btn-sm btn-outline'; btn.textContent='⬇ '+label;
+  btn.onclick=()=>{ const a=document.createElement('a'); a.href='data:image/png;base64,'+b64; a.download=fname; a.click(); };
+  return btn;
+}
+
+// ── ANALYZE ────────────────────────────────────────────
+async function runAnalysis() {
+  if (!ventasFile) { showError('Archivo requerido', 'Sube el archivo de ventas (.csv) primero.'); return; }
+  hideError();
+  document.getElementById('results').style.display='none';
+  document.getElementById('loader').style.display='flex';
+  document.getElementById('btn-run').disabled=true;
+
+  const fd = new FormData();
+  fd.append('ventas', ventasFile);
+  const dept = document.getElementById('inp-dept').value;
+  if (dept) fd.append('dept', dept);
+  const promosF = document.getElementById('inp-promos').files[0];
+  if (promosF) fd.append('promos', promosF);
+  if (selectedSkus.size > 0) fd.append('skus', [...selectedSkus].join(','));
+
+  try {
+    const resp = await fetch('/analyze',{method:'POST',body:fd});
+    const data = await resp.json();
+    document.getElementById('loader').style.display='none';
+    document.getElementById('btn-run').disabled=false;
+
+    if (resp.status===422 && data.margin_errors) {
+      showError('❌ Error de margen — no se puede procesar',
+        data.margin_errors.map(e=>e.msg).join('\n\n')); return;
+    }
+    if (!resp.ok) { showError('Error al procesar', data.error||'Error inesperado'); return; }
+
+    // ── Populate ────────────────────────────────────────
+    document.getElementById('results').style.display='flex';
+
+    // Heading
+    const namesArr = data.skus.map(s=>`${s} — ${data.names[s]}`).join(' · ');
+    document.getElementById('res-heading').textContent = `Departamento: ${data.dept}`;
+    document.getElementById('res-sub').textContent = `${data.skus.length} SKU(s) analizados: ${namesArr}`;
+
+    // Warnings
+    const cw=document.getElementById('card-warnings'), wl=document.getElementById('warn-list');
+    wl.innerHTML='';
+    if (data.warnings&&data.warnings.length) {
+      cw.style.display='block';
+      data.warnings.forEach(w=>{ const d=document.createElement('div'); d.className='warn-item'; d.innerHTML='⚠️ '+w; wl.appendChild(d); });
+    } else cw.style.display='none';
+
+    // Comparativo
+    const tb=document.getElementById('comp-tbody'); tb.innerHTML='';
+    if (data.comparativo&&data.comparativo.length) {
+      data.comparativo.forEach(r=>{
+        tb.innerHTML+=`<tr>
+          <td><code>${r.sku}</code></td><td>${r.nombre}</td>
+          <td>${r.sem_promo}</td><td>${r.sem_no_promo}</td>
+          <td class="${deltaClass(r.delta_u)}">${fmtD(r.delta_u)}</td>
+          <td class="${deltaClass(r.delta_r)}">${fmtD(r.delta_r)}</td>
+          <td class="${deltaClass(r.delta_g)}">${fmtD(r.delta_g)}</td></tr>`;
+      });
+    } else tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--gray3);padding:1rem">Sin semanas de promo suficientes para comparativo.</td></tr>';
+
+    // Charts
+    document.getElementById('img-timeline').src='data:image/png;base64,'+data.timeline;
+    document.getElementById('img-event').src='data:image/png;base64,'+data.event;
+
+    const dlTl=document.getElementById('dl-tl'); dlTl.innerHTML=''; dlTl.appendChild(dlBtn(data.timeline,'timeline.png','Descargar Timeline'));
+    const dlEv=document.getElementById('dl-ev'); dlEv.innerHTML=''; dlEv.appendChild(dlBtn(data.event,'event_study.png','Descargar Event Study'));
+
+    // Conclusion cards
+    const grid=document.getElementById('conc-grid'); grid.innerHTML='';
+    data.conclusions.forEach(c=>{
+      const pos=v=>v&&v.startsWith('+');
+      grid.innerHTML+=`<div class="conc-card">
+        <div class="conc-sku">SKU ${c.sku}</div>
+        <div class="conc-name">${c.name}</div>
+        <div class="conc-verdict">${c.veredicto}</div>
+        <div class="conc-metrics">
+          <div class="cm-item">Unid. Dur <strong class="${pos(c.dur_u)?'delta-pos':'delta-neg'}">${c.dur_u}</strong></div>
+          <div class="cm-item">Unid. Post <strong class="${pos(c.post_u)?'delta-pos':'delta-neg'}">${c.post_u}</strong></div>
+          <div class="cm-item">Gan. Dur <strong class="${pos(c.dur_g)?'delta-pos':'delta-neg'}">${c.dur_g}</strong></div>
+          <div class="cm-item">Gan. Post <strong class="${pos(c.post_g)?'delta-pos':'delta-neg'}">${c.post_g}</strong></div>
+        </div></div>`;
+    });
+
+    // AI conclusion
+    const aiEl=document.getElementById('ai-text');
+    if (data.ai_conclusion) {
+      aiEl.className='ai-text'; aiEl.textContent=data.ai_conclusion;
+    } else {
+      aiEl.className='ai-fallback';
+      aiEl.textContent='(Conclusión IA no disponible — configura ANTHROPIC_API_KEY en las variables de entorno de Railway.)';
+    }
+
+    document.getElementById('results').scrollIntoView({behavior:'smooth'});
+  } catch(e) {
+    document.getElementById('loader').style.display='none';
+    document.getElementById('btn-run').disabled=false;
+    showError('Error de conexión', e.message);
+  }
+}
+</script>
+</body>
+</html>
