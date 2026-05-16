@@ -260,21 +260,27 @@ Escribe UNA conclusión ejecutiva en español, máximo 5 oraciones, cubriendo:
 4. Advertencia de riesgo de margen si aplica
 
 Tono: profesional, directo, sin bullets. Solo párrafo continuo."""
+    # Qwen2 chat template format for the text-generation endpoint
+    formatted = (
+        "<|im_start|>system\nEres analista de retail experto en datos de OfficeMax México.<|im_end|>\n"
+        f"<|im_start|>user\n{prompt}<|im_end|>\n"
+        "<|im_start|>assistant\n"
+    )
     payload = json.dumps({
-        "model": "Qwen/Qwen2-0.5B-Instruct",
-        "messages": [{"role": "user", "content": prompt}],
-        "max_tokens": 400,
-        "stream": False
+        "inputs": formatted,
+        "parameters": {"max_new_tokens": 400, "return_full_text": False,
+                       "temperature": 0.7, "do_sample": True}
     }).encode()
     req = urllib.request.Request(
-        "https://api-inference.huggingface.co/models/Qwen/Qwen2-0.5B-Instruct/v1/chat/completions",
+        "https://api-inference.huggingface.co/models/Qwen/Qwen2-0.5B-Instruct",
         data=payload,
         headers={"Content-Type": "application/json", "Authorization": f"Bearer {api_key}"},
         method="POST"
     )
     try:
-        with urllib.request.urlopen(req, timeout=30) as r:
-            return json.loads(r.read())['choices'][0]['message']['content']
+        with urllib.request.urlopen(req, timeout=45) as r:
+            result = json.loads(r.read())
+            return result[0]['generated_text']
     except urllib.error.HTTPError as e:
         body = e.read().decode('utf-8', errors='ignore')
         return f"[ERROR {e.code}] {body[:300]}"
