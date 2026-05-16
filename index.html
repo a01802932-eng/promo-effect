@@ -376,7 +376,7 @@ code{background:var(--gray);padding:.1rem .35rem;border-radius:3px;font-size:.78
   <!-- LOADER -->
   <div id="loader">
     <div class="spinner"></div>
-    <p class="loader-text">Procesando datos y generando gráficas…</p>
+    <p class="loader-text">Procesando datos y generando gráficas… (puede tomar 20–60 seg)</p>
   </div>
 
   <!-- ERROR -->
@@ -456,7 +456,7 @@ code{background:var(--gray);padding:.1rem .35rem;border-radius:3px;font-size:.78
 <script>
 // ── State ──────────────────────────────────────────────
 let ventasFile = null;
-let ventasCache = null;   // {dept: ArrayBuffer} para re-uso
+let ventasToken = null;   // server-side cache token (avoids re-uploading CSV)
 let allSkus = [];
 let selectedSkus = new Set();
 
@@ -471,6 +471,7 @@ function onFileSelect(inp, zoneId, nameId) {
 async function onVentasSelect(inp) {
   onFileSelect(inp, 'zone-ventas', 'name-ventas');
   ventasFile = inp.files[0] || null;
+  ventasToken = null;
   if (ventasFile) await loadDepts();
 }
 
@@ -481,6 +482,7 @@ async function loadDepts() {
     const r = await fetch('/departments', {method:'POST', body:fd});
     const d = await r.json();
     if (d.error) { showError('Error leyendo departamentos', d.error); return; }
+    ventasToken = d.token || null;
     const sel = document.getElementById('inp-dept');
     sel.innerHTML = '<option value="">— Elige un departamento —</option>';
     d.departments.forEach(dep => {
@@ -492,8 +494,10 @@ async function loadDepts() {
 
 async function loadSkus() {
   const dept = document.getElementById('inp-dept').value;
-  if (!dept || !ventasFile) { document.getElementById('sku-section').style.display='none'; return; }
-  const fd = new FormData(); fd.append('ventas', ventasFile); fd.append('dept', dept);
+  if (!dept || (!ventasFile && !ventasToken)) { document.getElementById('sku-section').style.display='none'; return; }
+  const fd = new FormData();
+  if (ventasToken) { fd.append('token', ventasToken); } else { fd.append('ventas', ventasFile); }
+  fd.append('dept', dept);
   try {
     const r = await fetch('/skus', {method:'POST', body:fd});
     const d = await r.json();
@@ -556,22 +560,26 @@ function dlBtn(b64, fname, label) {
 
 // ── ANALYZE ────────────────────────────────────────────
 async function runAnalysis() {
-  if (!ventasFile) { showError('Archivo requerido', 'Sube el archivo de ventas (.csv) primero.'); return; }
+  if (!ventasFile && !ventasToken) { showError('Archivo requerido', 'Sube el archivo de ventas (.csv) primero.'); return; }
   hideError();
   document.getElementById('results').style.display='none';
   document.getElementById('loader').style.display='flex';
   document.getElementById('btn-run').disabled=true;
 
   const fd = new FormData();
-  fd.append('ventas', ventasFile);
+  if (ventasToken) { fd.append('token', ventasToken); } else { fd.append('ventas', ventasFile); }
   const dept = document.getElementById('inp-dept').value;
   if (dept) fd.append('dept', dept);
   const promosF = document.getElementById('inp-promos').files[0];
   if (promosF) fd.append('promos', promosF);
   if (selectedSkus.size > 0) fd.append('skus', [...selectedSkus].join(','));
 
+  const controller = new AbortController();
+  const tid = setTimeout(() => controller.abort(), 180000);
+
   try {
-    const resp = await fetch('/analyze',{method:'POST',body:fd});
+    const resp = await fetch('/analyze',{method:'POST',body:fd,signal:controller.signal});
+    clearTimeout(tid);
     const data = await resp.json();
     document.getElementById('loader').style.display='none';
     document.getElementById('btn-run').disabled=false;
@@ -645,9 +653,14 @@ async function runAnalysis() {
 
     document.getElementById('results').scrollIntoView({behavior:'smooth'});
   } catch(e) {
+    clearTimeout(tid);
     document.getElementById('loader').style.display='none';
     document.getElementById('btn-run').disabled=false;
-    showError('Error de conexión', e.message);
+    if (e.name === 'AbortError') {
+      showError('Tiempo agotado', 'El análisis tardó demasiado. Intenta seleccionar menos SKUs o reducir el rango de fechas del CSV.');
+    } else {
+      showError('Error de conexión', e.message);
+    }
   }
 }
 </script>

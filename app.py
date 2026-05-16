@@ -1,4 +1,4 @@
-import os, io, base64, warnings, json
+import os, io, base64, warnings, json, uuid, tempfile, time
 import pandas as pd
 import numpy as np
 import matplotlib
@@ -16,6 +16,45 @@ app = Flask(__name__, static_folder='.')
 MARGIN_ASSUMPTION = 0.60
 K_WEEKS           = 4
 
+# ── File cache (avoids re-uploading the CSV on every request) ─────────────────
+_CACHE: dict = {}
+_CACHE_TTL = 3600  # 1 hour
+
+def _clean_cache():
+    now = time.time()
+    stale = [k for k, v in _CACHE.items() if now - v['ts'] > _CACHE_TTL]
+    for k in stale:
+        try: os.unlink(_CACHE[k]['path'])
+        except: pass
+        del _CACHE[k]
+
+def _cache_file(data: bytes) -> str:
+    _clean_cache()
+    token = str(uuid.uuid4())
+    f = tempfile.NamedTemporaryFile(delete=False, suffix='.csv')
+    f.write(data); f.close()
+    _CACHE[token] = {'path': f.name, 'ts': time.time()}
+    return token
+
+def _read_cache(token: str):
+    entry = _CACHE.get(token)
+    if not entry: return None
+    try:
+        with open(entry['path'], 'rb') as f: return f.read()
+    except: return None
+
+def _get_ventas_bytes():
+    token = request.form.get('token', '')
+    if token:
+        data = _read_cache(token)
+        if data is None:
+            raise ValueError('Sesión expirada — vuelve a subir el archivo CSV.')
+        return data, token
+    if 'ventas' in request.files:
+        data = request.files['ventas'].read()
+        return data, None
+    raise ValueError('Falta el archivo de ventas.')
+
 NAVY    = '#0F2A4A'
 INK     = '#1E293B'
 COL_UNITS = '#2563EB'; COL_REV = '#10B981'; COL_PROF = '#F59E0B'
@@ -25,7 +64,7 @@ PRE_C   = '#94A3B8';   DUR_C   = '#2563EB'; POST_C   = '#F59E0B'
 
 def fig_to_b64(fig):
     buf = io.BytesIO()
-    fig.savefig(buf, format='png', dpi=155, bbox_inches='tight', facecolor='white')
+    fig.savefig(buf, format='png', dpi=100, bbox_inches='tight', facecolor='white')
     buf.seek(0); plt.close(fig)
     return base64.b64encode(buf.read()).decode()
 
@@ -221,7 +260,7 @@ Escribe UNA conclusión ejecutiva en español, máximo 5 oraciones, cubriendo:
 4. Advertencia de riesgo de margen si aplica
 
 Tono: profesional, directo, sin bullets. Solo párrafo continuo."""
-    payload = json.dumps({"model":"claude-sonnet-4-20250514","max_tokens":400,"messages":[{"role":"user","content":prompt}]}).encode()
+    payload = json.dumps({"model":"claude-sonnet-4-6","max_tokens":400,"messages":[{"role":"user","content":prompt}]}).encode()
     req = urllib.request.Request("https://api.anthropic.com/v1/messages",data=payload,
         headers={"Content-Type":"application/json","x-api-key":api_key,"anthropic-version":"2023-06-01"},method="POST")
     try:
@@ -241,16 +280,19 @@ def logo(): return send_from_directory('.','logo-officemax.png')
 def departments():
     if 'ventas' not in request.files: return jsonify({'error':'Falta archivo ventas'}),400
     try:
-        df=load_ventas(request.files['ventas'].read())
-        return jsonify({'departments': sorted(df['dept_nm'].dropna().unique().tolist())})
+        data = request.files['ventas'].read()
+        token = _cache_file(data)
+        df = load_ventas(data)
+        return jsonify({'token': token, 'departments': sorted(df['dept_nm'].dropna().unique().tolist())})
     except ValueError as e: return jsonify({'error':str(e)}),400
 
 
 @app.route('/skus', methods=['POST'])
 def skus_for_dept():
-    if 'ventas' not in request.files: return jsonify({'error':'Falta archivo ventas'}),400
-    dept=request.form.get('dept','').strip()
-    try: df=load_ventas(request.files['ventas'].read())
+    dept = request.form.get('dept','').strip()
+    try: data, _ = _get_ventas_bytes()
+    except ValueError as e: return jsonify({'error':str(e)}),400
+    try: df = load_ventas(data)
     except ValueError as e: return jsonify({'error':str(e)}),400
     vc=df[df['dept_nm'].str.upper()==dept.upper()].copy() if dept else df
     if vc.empty: return jsonify({'error':f'Departamento "{dept}" no encontrado'}),400
@@ -264,8 +306,9 @@ def skus_for_dept():
 @app.route('/analyze', methods=['POST'])
 def analyze():
     try:
-        if 'ventas' not in request.files: return jsonify({'error':'Falta el archivo de ventas.'}),400
-        try: ven=load_ventas(request.files['ventas'].read())
+        try: ven_bytes, _ = _get_ventas_bytes()
+        except ValueError as e: return jsonify({'error':str(e)}),400
+        try: ven=load_ventas(ven_bytes)
         except ValueError as e: return jsonify({'error':str(e)}),400
 
         dept=request.form.get('dept','').strip().upper()
