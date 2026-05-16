@@ -275,7 +275,11 @@ Tono: profesional, directo, sin bullets. Solo párrafo continuo."""
     try:
         with urllib.request.urlopen(req, timeout=30) as r:
             return json.loads(r.read())['choices'][0]['message']['content']
-    except: return None
+    except urllib.error.HTTPError as e:
+        body = e.read().decode('utf-8', errors='ignore')
+        return f"[ERROR {e.code}] {body[:300]}"
+    except Exception as e:
+        return f"[ERROR] {str(e)}"
 
 
 @app.route('/')
