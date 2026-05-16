@@ -240,7 +240,7 @@ def make_event_study(skus, weekly, names):
 
 
 def llm_conclusion(dept, skus, names, conclusions, comparativo):
-    api_key = os.environ.get('HF_TOKEN', '')
+    api_key = os.environ.get('TOGETHER_API_KEY', '')
     if not api_key: return None
     rows = '\n'.join(f"- SKU {c['sku']} ({c['name']}): unid.dur={c['dur_u']}, post={c['post_u']}; gan.dur={c['dur_g']}, post={c['post_g']}; veredicto='{c['veredicto']}'" for c in conclusions)
     comp = '\n'.join(f"- SKU {r['sku']} ({r['nombre']}): Δunid={r['delta_u']}%, Δing={r['delta_r']}%, Δgan={r['delta_g']}%" for r in comparativo) or '(sin comparativo suficiente)'
@@ -260,27 +260,21 @@ Escribe UNA conclusión ejecutiva en español, máximo 5 oraciones, cubriendo:
 4. Advertencia de riesgo de margen si aplica
 
 Tono: profesional, directo, sin bullets. Solo párrafo continuo."""
-    # Qwen2 chat template format for the text-generation endpoint
-    formatted = (
-        "<|im_start|>system\nEres analista de retail experto en datos de OfficeMax México.<|im_end|>\n"
-        f"<|im_start|>user\n{prompt}<|im_end|>\n"
-        "<|im_start|>assistant\n"
-    )
     payload = json.dumps({
-        "inputs": formatted,
-        "parameters": {"max_new_tokens": 400, "return_full_text": False,
-                       "temperature": 0.7, "do_sample": True}
+        "model": "Qwen/Qwen2-0.5B-Instruct",
+        "messages": [{"role": "user", "content": prompt}],
+        "max_tokens": 400,
+        "temperature": 0.7
     }).encode()
     req = urllib.request.Request(
-        "https://api-inference.huggingface.co/models/Qwen/Qwen2-0.5B-Instruct",
+        "https://api.together.xyz/v1/chat/completions",
         data=payload,
         headers={"Content-Type": "application/json", "Authorization": f"Bearer {api_key}"},
         method="POST"
     )
     try:
         with urllib.request.urlopen(req, timeout=45) as r:
-            result = json.loads(r.read())
-            return result[0]['generated_text']
+            return json.loads(r.read())['choices'][0]['message']['content']
     except urllib.error.HTTPError as e:
         body = e.read().decode('utf-8', errors='ignore')
         return f"[ERROR {e.code}] {body[:300]}"

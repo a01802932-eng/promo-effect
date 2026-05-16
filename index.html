@@ -648,7 +648,7 @@ async function runAnalysis() {
       aiEl.className='ai-text'; aiEl.textContent=data.ai_conclusion;
     } else {
       aiEl.className='ai-fallback';
-      aiEl.textContent='(Conclusión IA no disponible — configura HF_TOKEN en las variables de entorno de Railway.)';
+      aiEl.textContent='(Conclusión IA no disponible — configura TOGETHER_API_KEY en las variables de entorno de Railway.)';
     }
 
     document.getElementById('results').scrollIntoView({behavior:'smooth'});
