@@ -240,7 +240,7 @@ def make_event_study(skus, weekly, names):
 
 
 def llm_conclusion(dept, skus, names, conclusions, comparativo):
-    api_key = os.environ.get('ANTHROPIC_API_KEY','')
+    api_key = os.environ.get('HF_TOKEN', '')
     if not api_key: return None
     rows = '\n'.join(f"- SKU {c['sku']} ({c['name']}): unid.dur={c['dur_u']}, post={c['post_u']}; gan.dur={c['dur_g']}, post={c['post_g']}; veredicto='{c['veredicto']}'" for c in conclusions)
     comp = '\n'.join(f"- SKU {r['sku']} ({r['nombre']}): Δunid={r['delta_u']}%, Δing={r['delta_r']}%, Δgan={r['delta_g']}%" for r in comparativo) or '(sin comparativo suficiente)'
@@ -260,12 +260,21 @@ Escribe UNA conclusión ejecutiva en español, máximo 5 oraciones, cubriendo:
 4. Advertencia de riesgo de margen si aplica
 
 Tono: profesional, directo, sin bullets. Solo párrafo continuo."""
-    payload = json.dumps({"model":"claude-sonnet-4-6","max_tokens":400,"messages":[{"role":"user","content":prompt}]}).encode()
-    req = urllib.request.Request("https://api.anthropic.com/v1/messages",data=payload,
-        headers={"Content-Type":"application/json","x-api-key":api_key,"anthropic-version":"2023-06-01"},method="POST")
+    payload = json.dumps({
+        "model": "Qwen/Qwen2-0.5B-Instruct",
+        "messages": [{"role": "user", "content": prompt}],
+        "max_tokens": 400,
+        "stream": False
+    }).encode()
+    req = urllib.request.Request(
+        "https://api-inference.huggingface.co/models/Qwen/Qwen2-0.5B-Instruct/v1/chat/completions",
+        data=payload,
+        headers={"Content-Type": "application/json", "Authorization": f"Bearer {api_key}"},
+        method="POST"
+    )
     try:
-        with urllib.request.urlopen(req,timeout=25) as r:
-            return json.loads(r.read())['content'][0]['text']
+        with urllib.request.urlopen(req, timeout=30) as r:
+            return json.loads(r.read())['choices'][0]['message']['content']
     except: return None
 
 

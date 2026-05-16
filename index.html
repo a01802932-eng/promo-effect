@@ -446,7 +446,7 @@ code{background:var(--gray);padding:.1rem .35rem;border-radius:3px;font-size:.78
 
     <!-- AI conclusion -->
     <div class="ai-box">
-      <div class="ai-label"><span>✦</span> Conclusión ejecutiva generada con IA</div>
+      <div class="ai-label"><span>✦</span> Conclusión ejecutiva — Qwen2-0.5B-Instruct</div>
       <div id="ai-text" class="ai-text"></div>
     </div>
 
@@ -648,7 +648,7 @@ async function runAnalysis() {
       aiEl.className='ai-text'; aiEl.textContent=data.ai_conclusion;
     } else {
       aiEl.className='ai-fallback';
-      aiEl.textContent='(Conclusión IA no disponible — configura ANTHROPIC_API_KEY en las variables de entorno de Railway.)';
+      aiEl.textContent='(Conclusión IA no disponible — configura HF_TOKEN en las variables de entorno de Railway.)';
     }
 
     document.getElementById('results').scrollIntoView({behavior:'smooth'});
