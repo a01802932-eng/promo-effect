@@ -321,8 +321,6 @@ def analyze():
             dept=ven['dept_nm'].value_counts().idxmax(); ven_c=ven[ven['dept_nm']==dept].copy()
 
         ven_c['unit_price']=ven_c['net_sale']/ven_c['qty'].replace(0,np.nan)
-        merr=validate_margin(ven_c)
-        if merr: return jsonify({'margin_errors':merr}),422
 
         sel_raw=request.form.get('skus','')
         if sel_raw:
@@ -334,6 +332,10 @@ def analyze():
             for col in ['units','revenue','txns']: g[f'r_{col}']=g[col].rank(ascending=False)
             g['score']=g[['r_units','r_revenue','r_txns']].mean(axis=1)
             sel=list(g.nsmallest(3,'score').index)
+
+        # Validate margin only for the selected SKUs, not the whole department
+        merr=validate_margin(ven_c[ven_c['prod_nbr'].isin(sel)])
+        if merr: return jsonify({'margin_errors':merr}),422
 
         names={sku:get_name(ven_c,sku) for sku in sel}
 
